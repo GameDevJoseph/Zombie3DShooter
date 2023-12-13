@@ -60,6 +60,7 @@ public class Player : MonoBehaviour
         //apply mouseY to camera rotation X
         Vector3 currentCameraRotation = _mainCamera.gameObject.transform.localEulerAngles;
         currentCameraRotation.x -= mouseY;
+        currentCameraRotation.x = ClampAngle(currentCameraRotation.x, -35, 20);
         _mainCamera.gameObject.transform.localRotation = Quaternion.AngleAxis(currentCameraRotation.x, Vector3.right);
     }
 
@@ -102,5 +103,10 @@ public class Player : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         else
             Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public static float ClampAngle(float angle, float min, float max)
+    {
+        return Mathf.Clamp((angle <= 180) ? angle : -(360 - angle), min, max);
     }
 }
