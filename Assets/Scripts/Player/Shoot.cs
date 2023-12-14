@@ -5,12 +5,7 @@ using UnityEngine;
 public class Shoot : MonoBehaviour
 {
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
+    [SerializeField] GameObject _bloodSplatPrefab;
     // Update is called once per frame
     void Update()
     {
@@ -31,7 +26,9 @@ public class Shoot : MonoBehaviour
                     var objectHit = hit.collider.GetComponent<IDamagable>();
                     if (objectHit != null)
                     {
+                        var blood = Instantiate(_bloodSplatPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                         objectHit.Damage(35);
+                        Destroy(blood, 0.25f);
                     }
                 }
             }

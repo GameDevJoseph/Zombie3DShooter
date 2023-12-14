@@ -2,28 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDamagable
 {
     // get handle to character controller
     CharacterController _controller;
 
+    [Header("Player Stats")]
+    [SerializeField] int _maxHealth;
+    [SerializeField] int _currentHealth;
 
     [Header("Player Settings")]
     [SerializeField] int _playerSpeed;
     [SerializeField] float _jumpForce;
     [SerializeField] float _gravity;
+    float _yVelocity;
 
     [Header("Camera Settings")]
-    [Range(0f,2f)][SerializeField] float _cameraSensitivity = 2.0f;
+    [Range(0f, 2f)][SerializeField] float _cameraSensitivity = 2.0f;
 
 
     Camera _mainCamera;
     Vector3 _direction;
     Vector3 _velocity;
-    
+
+    public int CurrentHealth { get { return _currentHealth; } }
 
     private void Start()
     {
+        _currentHealth = _maxHealth;
         _controller = GetComponent<CharacterController>();
         _mainCamera = Camera.main;
 
@@ -40,7 +46,7 @@ public class Player : MonoBehaviour
         CameraController();
 
         //check for escape input to unlock the cursor
-        if(Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyUp(KeyCode.Escape))
             Cursor.lockState = CursorLockMode.None;
 
     }
@@ -74,24 +80,25 @@ public class Player : MonoBehaviour
             var vertical = Input.GetAxis("Vertical");
             //direction = vector to move
             _direction = new Vector3(horizontal, 0, vertical);
-            
-
+           
             //velocity = direction * speed
             _velocity = _direction * _playerSpeed;
+
+            //transform local to world space
+            _velocity = transform.TransformDirection(_velocity);
 
             //if Jump
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 //velocity = new velocity with added y
-                _velocity.y = _jumpForce;
+                _yVelocity = _jumpForce;
             }
         }
         //subtract gravity from player Y velocity
-        _velocity.y -= _gravity * Time.deltaTime;
+        _yVelocity -= _gravity * Time.deltaTime;
+        _velocity.y = _yVelocity;
 
-        //transform local to world space
-        _velocity = transform.TransformDirection(_velocity);
-
+        
         //controller move velocity & time
         _controller.Move(_velocity * Time.deltaTime);
     }
@@ -108,5 +115,13 @@ public class Player : MonoBehaviour
     public static float ClampAngle(float angle, float min, float max)
     {
         return Mathf.Clamp((angle <= 180) ? angle : -(360 - angle), min, max);
+    }
+
+    public void Damage(int damageAmount)
+    {
+        _currentHealth -= damageAmount;
+
+        if (_currentHealth < 1)
+            Destroy(this.gameObject);
     }
 }

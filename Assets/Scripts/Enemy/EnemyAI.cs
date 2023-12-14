@@ -4,10 +4,19 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour, IDamagable
 {
-    //reference to the character controller
+    public enum EnemyState
+    {
+        Idle,
+        Chase,
+        Attack,
+        Death
+    }
+
+
 
     [SerializeField] float _speed;
     [SerializeField] float _gravity;
+    [SerializeField] EnemyState _state = EnemyState.Chase;
 
     CharacterController _controller;
     Transform _target;
@@ -15,9 +24,13 @@ public class EnemyAI : MonoBehaviour, IDamagable
     Vector3 _direction;
     Vector3 _velocity;
 
+    [SerializeField] float _attackDelay = 1.5f;
+    float _nextAttack = -1;
 
     [SerializeField] int _maxHealth;
     int _currentHealth;
+
+
 
     public void Damage(int damageAmount)
     {
@@ -36,6 +49,19 @@ public class EnemyAI : MonoBehaviour, IDamagable
 
 
     void Update()
+    {
+
+        switch (_state)
+        {
+            case EnemyState.Idle: break;
+            case EnemyState.Chase: CalculateMovement(); break;
+            case EnemyState.Attack: DamagePlayer(); break;
+            case EnemyState.Death: break;
+            default: break;
+        }
+    }
+
+    private void CalculateMovement()
     {
         //check if grounded
         if (_controller.isGrounded)
@@ -59,5 +85,30 @@ public class EnemyAI : MonoBehaviour, IDamagable
         _controller.Move(_velocity * Time.deltaTime);
         //move to velocity
     }
+
+    public void ChangeState(int state)
+    {
+        _state = (EnemyState)state;
+    }
+
+    void DamagePlayer()
+    {
+        if (Time.time > _nextAttack)
+        {
+
+            if (_target != null)
+            {
+                var playerHealth = _target.GetComponent<Player>();
+                playerHealth.Damage(5);
+
+                if (playerHealth.CurrentHealth < 1)
+                {
+                    _state = EnemyState.Idle;
+                }
+            }
+            _nextAttack = Time.time + _attackDelay;
+        }
+    }
 }
+
 
