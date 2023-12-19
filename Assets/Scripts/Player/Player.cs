@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class Player : MonoBehaviour, IDamagable
 {
@@ -20,6 +21,10 @@ public class Player : MonoBehaviour, IDamagable
     [Header("Camera Settings")]
     [Range(0f, 2f)][SerializeField] float _cameraSensitivity = 2.0f;
 
+
+    [SerializeField] RigBuilder _rig;
+    [SerializeField] GameObject _ik;
+    [SerializeField] GameObject _weapon;
 
     Camera _mainCamera;
     Vector3 _direction;
@@ -44,12 +49,14 @@ public class Player : MonoBehaviour, IDamagable
     {
         CalculateMovement();
         CameraController();
+        
 
         //check for escape input to unlock the cursor
         if (Input.GetKeyUp(KeyCode.Escape))
             Cursor.lockState = CursorLockMode.None;
 
     }
+
 
     private void CameraController()
     {

@@ -4,12 +4,21 @@ using UnityEngine;
 
 public class Shoot : MonoBehaviour
 {
+    [SerializeField] GameObject _weapon;
+    Animator _anim;
 
     [SerializeField] GameObject _bloodSplatPrefab;
+
+    private void Start()
+    {
+        if(_weapon != null)
+            _anim = _weapon.GetComponent<Animator>();
+    }
     // Update is called once per frame
     void Update()
     {
         Fire();
+        Reload();
     }
 
     void Fire()
@@ -31,6 +40,17 @@ public class Shoot : MonoBehaviour
                         Destroy(blood, 0.25f);
                     }
                 }
+            }
+        }
+    }
+
+    void Reload()
+    {
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            if(_weapon != null)
+            {
+                _anim.SetTrigger("Reload");
             }
         }
     }
